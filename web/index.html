@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Super Line Adventure</title>
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="stylesheet" href="./src/styles/hud.css">
+  <link rel="stylesheet" href="./src/styles/menus.css">
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="renderCanvas"></canvas>
+
+    <!-- 1. Splash Screen -->
+    <div id="screen-splash" class="screen active">
+      <div class="splash-content">
+        <div class="game-logo-container">
+          <div class="logo-glow"></div>
+          <h1 class="logo-title">SUPER LINE</h1>
+          <h2 class="logo-subtitle">ADVENTURE</h2>
+          <p class="logo-tagline">ORIGINAL 2D PLATFORMER ODYSSEY</p>
+        </div>
+        <div class="splash-loader">
+          <div class="line-runner"></div>
+          <div class="pulse-bar"></div>
+        </div>
+        <p class="splash-prompt">Tap or Click Anywhere to Start</p>
+      </div>
+    </div>
+
+    <!-- 2. Loading Screen -->
+    <div id="screen-loading" class="screen">
+      <div class="loading-content">
+        <div class="spinner-line"></div>
+        <h3 id="loading-text">Initializing Quantum Engine...</h3>
+        <div class="progress-bar-container">
+          <div id="loading-progress-fill" class="progress-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Main Menu -->
+    <div id="screen-main-menu" class="screen">
+      <div class="menu-backdrop"></div>
+      <div class="menu-top-bar">
+        <div class="player-currency">
+          <div class="coin-badge">
+            <span class="currency-icon">🪙</span>
+            <span id="menu-coin-count" class="currency-count">0</span>
+          </div>
+          <div class="gem-badge">
+            <span class="currency-icon">💎</span>
+            <span id="menu-gem-count" class="currency-count">0</span>
+          </div>
+        </div>
+        <button id="btn-mute-toggle" class="icon-btn" aria-label="Toggle Sound">🔊</button>
+      </div>
+      <div class="menu-hero-showcase">
+        <div class="character-pedestal">
+          <div class="pedestal-ring"></div>
+          <div class="hero-preview-tag">SUPER LINE</div>
+        </div>
+      </div>
+      <div class="menu-nav-container">
+        <h1 class="menu-game-title">SUPER LINE</h1>
+        <span class="menu-subtitle">ADVENTURE</span>
+        <div class="menu-button-group">
+          <button id="btn-menu-play" class="game-btn primary">
+            <span class="btn-glow"></span>
+            <span class="btn-text">▶ PLAY CAMPAIGN</span>
+          </button>
+          <button id="btn-menu-endless" class="game-btn accent">
+            <span class="btn-glow"></span>
+            <span class="btn-text">⚡ ENDLESS MODE</span>
+          </button>
+          <button id="btn-menu-maps" class="game-btn secondary">
+            <span class="btn-text">🗺 MAP SELECTION</span>
+          </button>
+          <button id="btn-menu-shop" class="game-btn secondary">
+            <span class="btn-text">🛍 HERO SHOP</span>
+          </button>
+          <button id="btn-menu-settings" class="game-btn secondary">
+            <span class="btn-text">⚙ SETTINGS</span>
+          </button>
+          <button id="btn-menu-credits" class="game-btn text-only">
+            <span class="btn-text">ℹ CREDITS</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Play Menu -->
+    <div id="screen-play-menu" class="screen">
+      <div class="screen-header">
+        <button id="btn-play-back" class="back-btn">‹ BACK</button>
+        <h2>CHOOSE MODE</h2>
+      </div>
+      <div class="play-mode-cards">
+        <div id="card-mode-campaign" class="mode-card">
+          <div class="card-icon">🏰</div>
+          <h3>CAMPAIGN MODE</h3>
+          <p>Journey through 4 Worlds & 32 Handcrafted Levels</p>
+          <div id="campaign-progress-badge" class="mode-progress">1/32 Completed</div>
+        </div>
+        <div id="card-mode-endless" class="mode-card">
+          <div class="card-icon">♾️</div>
+          <h3>ENDLESS RUNNER</h3>
+          <p>Infinite procedural challenge with escalating hazards</p>
+          <div id="endless-record-badge" class="mode-progress">Best: 0m</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Map Selection (4 Worlds) -->
+    <div id="screen-map-select" class="screen">
+      <div class="screen-header">
+        <button id="btn-map-back" class="back-btn">‹ MENU</button>
+        <h2>WORLD SELECT</h2>
+      </div>
+      <div id="maps-container" class="maps-grid">
+        <div id="world-card-1" class="world-card" data-map="1">
+          <div class="world-banner meadows"></div>
+          <div class="world-info">
+            <div class="world-tag">WORLD 1</div>
+            <h3>Skyline Meadows</h3>
+            <p>Vibrant floating platforms, gentle rolling hills, introductory challenges.</p>
+            <div class="world-stats">8 Levels • <span id="world-1-stars">★ 0/24</span></div>
+            <button class="game-btn sm select-world-btn">ENTER WORLD</button>
+          </div>
+        </div>
+        <div id="world-card-2" class="world-card locked" data-map="2">
+          <div class="world-banner caves"></div>
+          <div class="world-info">
+            <div class="world-tag">WORLD 2</div>
+            <h3>Crystal Caves</h3>
+            <p>Glowing subterranean cavern with moving platforms and stalactites.</p>
+            <div class="world-stats">8 Levels • <span id="world-2-stars">★ 0/24</span></div>
+            <button class="game-btn sm select-world-btn">LOCKED</button>
+          </div>
+        </div>
+        <div id="world-card-3" class="world-card locked" data-map="3">
+          <div class="world-banner cyber"></div>
+          <div class="world-info">
+            <div class="world-tag">WORLD 3</div>
+            <h3>Cyber Sky City</h3>
+            <p>High-tech neon towers, laser grids, and mechanical drone patrols.</p>
+            <div class="world-stats">8 Levels • <span id="world-3-stars">★ 0/24</span></div>
+            <button class="game-btn sm select-world-btn">LOCKED</button>
+          </div>
+        </div>
+        <div id="world-card-4" class="world-card locked" data-map="4">
+          <div class="world-banner volcano"></div>
+          <div class="world-info">
+            <div class="world-tag">WORLD 4</div>
+            <h3>Volcanic Shadow Realm</h3>
+            <p>Lava lakes, fiery traps, crumbling platforms & the Ultimate Final Boss!</p>
+            <div class="world-stats">8 Levels • <span id="world-4-stars">★ 0/24</span></div>
+            <button class="game-btn sm select-world-btn">LOCKED</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Level Selection (8 Levels per map) -->
+    <div id="screen-level-select" class="screen">
+      <div class="screen-header">
+        <button id="btn-level-back" class="back-btn">‹ WORLDS</button>
+        <h2 id="level-select-title">SKYLINE MEADOWS</h2>
+      </div>
+      <div id="levels-grid-container" class="levels-grid">
+        <!-- 8 level buttons injected dynamically -->
+      </div>
+    </div>
+
+    <!-- 7. Endless Mode Screen -->
+    <div id="screen-endless-menu" class="screen">
+      <div class="screen-header">
+        <button id="btn-endless-back" class="back-btn">‹ MENU</button>
+        <h2>ENDLESS RUN</h2>
+      </div>
+      <div class="endless-dashboard">
+        <div class="endless-stats-card">
+          <div class="stat-box">
+            <span class="stat-label">BEST DISTANCE</span>
+            <span id="endless-best-dist" class="stat-val">0 m</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">BEST SCORE</span>
+            <span id="endless-best-score" class="stat-val">0 pts</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">RUNS PLAYED</span>
+            <span id="endless-total-runs" class="stat-val">0</span>
+          </div>
+        </div>
+        <p class="endless-desc">Procedural platform chunks with dynamic difficulty balancing. How far can Super Line leap?</p>
+        <button id="btn-endless-start" class="game-btn primary pulse">
+          <span class="btn-glow"></span>
+          <span class="btn-text">⚡ LAUNCH RUN</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 8. Gameplay HUD -->
+    <div id="game-hud">
+      <div class="hud-top-bar">
+        <div class="hud-left">
+          <div id="hud-hearts" class="hud-health">
+            <span class="heart filled">❤</span>
+            <span class="heart filled">❤</span>
+            <span class="heart filled">❤</span>
+          </div>
+          <div id="hud-level-tag" class="hud-level-indicator">LVL 1-1</div>
+        </div>
+        <div class="hud-center">
+          <div id="hud-score-val" class="hud-score">0000</div>
+          <div id="hud-powerup-bar" class="powerup-timer-bar hidden">
+            <span id="powerup-name">SPEED SPARK</span>
+            <div id="powerup-fill" class="powerup-bar-fill"></div>
+          </div>
+        </div>
+        <div class="hud-right">
+          <div class="hud-currency">
+            <span>🪙 <span id="hud-coin-val">0</span></span>
+            <span>💎 <span id="hud-gem-val">0</span></span>
+          </div>
+          <button id="btn-pause-hud" class="hud-btn">⏸</button>
+        </div>
+      </div>
+
+      <!-- Boss Health Bar -->
+      <div id="hud-boss-bar" class="boss-health-container hidden">
+        <div class="boss-name" id="hud-boss-name">SHADOW TITAN</div>
+        <div class="boss-bar-track">
+          <div class="boss-bar-fill" id="boss-fill"></div>
+        </div>
+      </div>
+
+      <!-- Mobile On-Screen Controls -->
+      <div id="mobile-controls" class="mobile-controls">
+        <div class="dpad-container">
+          <button id="btn-touch-left" class="dpad-btn" aria-label="Move Left">◀</button>
+          <button id="btn-touch-right" class="dpad-btn" aria-label="Move Right">▶</button>
+        </div>
+        <div class="action-container">
+          <button id="btn-touch-attack" class="action-btn attack" aria-label="Attack">⚡</button>
+          <button id="btn-touch-jump" class="action-btn jump" aria-label="Jump">▲</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Pause Menu -->
+    <div id="screen-pause" class="screen-modal">
+      <div class="modal-card">
+        <h2>GAME PAUSED</h2>
+        <div class="pause-stats">
+          <p>Level: <span id="pause-level-num">1</span></p>
+          <p>Coins Collected: <span id="pause-coins">0</span></p>
+        </div>
+        <div class="modal-buttons">
+          <button id="btn-pause-resume" class="game-btn primary">RESUME</button>
+          <button id="btn-pause-restart" class="game-btn secondary">RESTART</button>
+          <button id="btn-pause-settings" class="game-btn secondary">SETTINGS</button>
+          <button id="btn-pause-quit" class="game-btn danger">QUIT TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. Settings Screen -->
+    <div id="screen-settings" class="screen">
+      <div class="screen-header">
+        <button id="btn-settings-back" class="back-btn">‹ BACK</button>
+        <h2>SETTINGS</h2>
+      </div>
+      <div class="settings-container">
+        <div class="setting-group">
+          <label>MASTER VOLUME (<span id="val-vol-master">80%</span>)</label>
+          <input id="slider-master-vol" type="range" min="0" max="100" value="80">
+        </div>
+        <div class="setting-group">
+          <label>MUSIC VOLUME (<span id="val-vol-music">70%</span>)</label>
+          <input id="slider-music-vol" type="range" min="0" max="100" value="70">
+        </div>
+        <div class="setting-group">
+          <label>SFX VOLUME (<span id="val-vol-sfx">90%</span>)</label>
+          <input id="slider-sfx-vol" type="range" min="0" max="100" value="90">
+        </div>
+        <div class="setting-group">
+          <label>GRAPHICS QUALITY</label>
+          <div class="quality-toggle-group">
+            <button class="quality-btn" data-quality="low">LOW</button>
+            <button class="quality-btn active" data-quality="med">MEDIUM</button>
+            <button class="quality-btn" data-quality="high">HIGH</button>
+          </div>
+        </div>
+        <div class="setting-group danger-zone">
+          <button id="btn-reset-data" class="game-btn danger">RESET ALL PROGRESS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="screen-confirm-modal" class="screen-modal">
+      <div class="modal-card">
+        <h3>ARE YOU SURE?</h3>
+        <p>This will wipe all completed levels, stars, coins, and records permanently.</p>
+        <div class="modal-buttons">
+          <button id="btn-confirm-reset" class="game-btn danger">CONFIRM RESET</button>
+          <button id="btn-cancel-reset" class="game-btn secondary">CANCEL</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. Game Over Screen -->
+    <div id="screen-game-over" class="screen-modal">
+      <div class="modal-card game-over-card">
+        <h2>SHATTERED!</h2>
+        <p>Super Line lost all energy.</p>
+        <div class="results-box">
+          <p>Score: <span id="over-score-val">0</span></p>
+          <p>Coins Kept: <span id="over-coins-val">0</span></p>
+          <p>Checkpoint: <span id="go-checkpoint">Starting Point</span></p>
+        </div>
+        <div class="modal-buttons">
+          <button id="btn-gameover-watchad" class="game-btn ad-btn">📺 WATCH AD: +50 COINS</button>
+          <button id="btn-gameover-retry" class="game-btn primary">🔄 TRY AGAIN</button>
+          <button id="btn-gameover-menu" class="game-btn secondary">🏠 LEVEL SELECT</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12. Level Complete Screen -->
+    <div id="screen-level-complete" class="screen-modal">
+      <div class="modal-card victory-card">
+        <h2>LEVEL CLEARED!</h2>
+        <h3 id="win-level-num">LEVEL 01</h3>
+        <div id="win-stars" class="star-rating">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+        <div class="results-box">
+          <div class="res-row">
+            <span>Completion Time:</span>
+            <span id="win-time">00:00</span>
+          </div>
+          <div class="res-row">
+            <span>Coins Collected:</span>
+            <span id="win-coins">0</span>
+          </div>
+          <div class="res-row">
+            <span>Gems Found:</span>
+            <span id="win-gems">0</span>
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button id="btn-vic-watchad" class="game-btn ad-btn">📺 WATCH AD: +50 COINS</button>
+          <button id="btn-vic-next" class="game-btn primary">⏩ NEXT LEVEL</button>
+          <button id="btn-vic-replay" class="game-btn secondary">🔄 REPLAY</button>
+          <button id="btn-vic-map" class="game-btn secondary">🗺 WORLD MAP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13. Map Complete Screen -->
+    <div id="screen-map-complete" class="screen-modal">
+      <div class="modal-card world-clear-card">
+        <h2>SECTOR LIBERATED!</h2>
+        <h3 id="mapwin-name">SKYLINE MEADOWS</h3>
+        <p>Outstanding platforming! You conquered all 8 levels of this world.</p>
+        <div class="world-clear-reward">
+          <span>BONUS: +500 Coins & +5 Prismatic Gems!</span>
+        </div>
+        <div class="modal-buttons">
+          <button id="btn-world-clear-next" class="game-btn primary">PROCEED TO NEXT WORLD</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 14. Endless Mode Results -->
+    <div id="screen-endless-results" class="screen-modal">
+      <div class="modal-card">
+        <h2>RUN CONCLUDED</h2>
+        <div class="results-box">
+          <div class="res-row">
+            <span>Distance Traveled:</span>
+            <span id="endless-res-dist">0m</span>
+          </div>
+          <div class="res-row">
+            <span>Final Score:</span>
+            <span id="endless-res-score">0</span>
+          </div>
+          <div class="res-row">
+            <span>Coins Gathered:</span>
+            <span id="endless-res-coins">0</span>
+          </div>
+          <div id="endless-new-record" class="badge-new-record hidden">NEW RECORD!</div>
+        </div>
+        <div class="modal-buttons">
+          <button id="btn-endless-retry" class="game-btn primary">⚡ RUN AGAIN</button>
+          <button id="btn-endless-menu" class="game-btn secondary">🏠 MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 15. Shop / Cosmetics Screen -->
+    <div id="screen-shop" class="screen">
+      <div class="screen-header">
+        <button id="btn-shop-back" class="back-btn">‹ MENU</button>
+        <h2>HERO WORKSHOP</h2>
+        <div class="player-currency">
+          <span class="coin-badge">🪙 <span id="shop-coins">0</span></span>
+          <span class="gem-badge">💎 <span id="shop-gems">0</span></span>
+        </div>
+      </div>
+      <div class="shop-tabs">
+        <button id="tab-shop-skins" class="shop-tab active" data-tab="skins">HERO SKINS</button>
+        <button id="tab-shop-trails" class="shop-tab" data-tab="trails">PARTICLE TRAILS</button>
+      </div>
+      <div id="shop-items-grid" class="shop-items-grid">
+        <!-- Shop items dynamically injected -->
+      </div>
+    </div>
+
+    <!-- 16. Credits Screen -->
+    <div id="screen-credits" class="screen">
+      <div class="screen-header">
+        <button id="btn-credits-back" class="back-btn">‹ MENU</button>
+        <h2>CREDITS</h2>
+      </div>
+      <div class="credits-container">
+        <div class="credit-block">
+          <h3>SUPER LINE ADVENTURE</h3>
+          <p>An Original 2D Side-Scrolling Platformer Experience</p>
+        </div>
+        <div class="credit-block">
+          <h4>TECH STACK</h4>
+          <p>TypeScript • Babylon.js v7 • CSS3 • Web Audio API</p>
+        </div>
+        <div class="credit-block">
+          <h4>ENGINE ARCHITECTURE</h4>
+          <p>Procedural Geometry, Custom Particle Shaders & Physics Systems</p>
+        </div>
+        <div class="credit-block">
+          <h4>AUDIO DESIGN</h4>
+          <p>100% Procedural Realtime Synthesizer Engine (Zero External Audio Files)</p>
+        </div>
+        <p class="copyright-notice">© Super Line Adventure • Crafted for Commercial Quality & Mobile Performance</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>

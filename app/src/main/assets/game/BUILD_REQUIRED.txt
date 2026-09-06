@@ -1,0 +1,22 @@
+This folder intentionally has no built game in it right now.
+
+It previously contained a pre-built web bundle (index.html + hashed JS/CSS
+assets) that was STALE relative to the actual source in /web/src — it
+predated the level, UI, and engine fixes made during this project's repair
+pass, so shipping it as-is would have meant "no old conflicting build
+remains" was violated and the Android app would run an outdated version of
+the game.
+
+Before building or running the Android app, regenerate this folder from
+the current web source:
+
+  cd web
+  npm install
+  npm run build
+  cp -r dist/* ../app/src/main/assets/game/
+
+MainActivity.kt loads file:///android_asset/game/index.html, so this
+folder must contain a fresh index.html plus its assets/ directory for the
+Android app to have anything to display.
+
+Delete this file once a real build has been copied in.
